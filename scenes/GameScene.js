@@ -1,35 +1,42 @@
-export default class LivingRoomScene extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
     constructor() {
-        super('LivingRoomScene');
+        super('GameScene');
     }
 
     preload() {
-        this.load.image('livingroom', 'assets/livingroombg.png');
-        this.load.image('table', 'assets/table.png');
-        this.load.spritesheet('bubble', 'assets/speech bubble sprite.png', {
-            frameWidth: 45,
-            frameHeight: 45,
-        });
+
     }
 
     create() {
-        const w= this.scale.width;
-        const h= this.scale.height;
-        const tableW = (w/2)-150;
-        const tableH = (h/2)+150;
-        this.add.image(w/2, h/2, 'livingroom').setDisplaySize(w, h);
-        this.add.image(tableW, tableH, 'table').setScale(1.25);
+        this.gridCols=6;
+        this.gridRows=9;
+        this.cellSize = 48;
+        this.grid=[];
+        this.offsetX = 120;
+        this.offsetY = 120;
+        this.gridContainer = this.add.container(this.offsetX,this.offsetY);
 
-        this.anims.create({
-            key: 'shake',
-            frames: this.anims.generateFrameNumbers('bubble', {start:0, end: 7}),
-            frameRate: 4,
-            repeat: -1
-        });
-        this.bubble = this.add.sprite(tableW, tableH-75, 'bubble').setScale(2);
-        this.bubble.anims.play('shake', true);
+        this.createGridData();
+        this.drawGridVisuals();
+    }
 
-        this.cameras.main.setBackgroundColor('#cdb4db');
-        this.cameras.main.fadeIn(1000, 0, 0, 0);
+    createGridData() {
+        for (let row=0; row<this.gridRows; row++) {
+            this.grid[row] = [];
+            for (let col=0; col<this.gridCols; col++) {
+                this.grid[row][col] = null;
+            }
+        }
+    }
+
+    drawGridVisuals() {
+        for (let row=0; row<this.gridRows; row++) {
+            for (let col=0; col<this.gridCols; col++) {
+                let x=col*this.cellSize;
+                let y=row*this.cellSize;
+                const cell = this.add.rectangle(x, y, this.cellSize-2, this.cellSize-2, 0xa07956);
+                this.gridContainer.add(cell);
+            }
+        }
     }
 }

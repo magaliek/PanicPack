@@ -23,17 +23,3 @@ function createSnowflake() {
 
 setInterval(createSnowflake, 1500);
 
-const config = {
-    type: Phaser.AUTO,
-    width: 600,
-    height: 600,
-    parent: 'gameContainer', // important!
-    scene: {
-        preload,
-        create,
-        update
-    }
-};
-
-new Phaser.Game(config);
-
