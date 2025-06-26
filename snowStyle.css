@@ -1,0 +1,69 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: linear-gradient(#050412, #030321);
+    overflow: hidden;
+}
+
+#snowContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.snowflake {
+    position: absolute;
+    top: -10px;
+    border-radius: 50%;
+    opacity: 0.8;
+    --endY: 50vh;
+    filter: drop-shadow(0 0 3px white);
+}
+
+#gameContainer {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.05); /* subtle background */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+
+@keyframes fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    15% {
+        transform: translate(-30px, calc(var(--endY) * 0.15)) rotate(60deg);
+    }
+    30% {
+        transform: translate(10px, calc(var(--endY) * 0.3)) rotate(120deg);
+    }
+    45% {
+        transform: translate(-20px, calc(var(--endY) * 0.45)) rotate(180deg);
+    }
+    60% {
+        transform: translate(15px, calc(var(--endY) * 0.6)) rotate(240deg);
+    }
+    75% {
+        transform: translate(-25px, calc(var(--endY) * 0.75)) rotate(300deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(20px, var(--endY)) rotate(360deg);
+        opacity: 0;
+    }
+}
