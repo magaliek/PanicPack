@@ -8,7 +8,7 @@ const config = {
     parent: 'gameContainer',
     pixelArt: true,
     backgroundColor: '#cdb4db',
-    scene: [StartScene, GameScene]
+    scene: [/*StartScene,*/ GameScene]
 };
 
 const game = new Phaser.Game(config);
