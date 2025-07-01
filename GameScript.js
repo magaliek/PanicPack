@@ -8,6 +8,9 @@ const config = {
     parent: 'gameContainer',
     pixelArt: true,
     backgroundColor: '#cdb4db',
+    physics: {
+        default: 'matter'
+    },
     scene: [/*StartScene,*/ GameScene]
 };
 
