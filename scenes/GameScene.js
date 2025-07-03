@@ -17,6 +17,7 @@ export default class GameScene extends Phaser.Scene {
         this.touchingBorders = new Map();
         this.box.setStrokeStyle(this.stroke, 0x614d3c);
         this.packed = new Set();
+        this.sprites = [];
         this.leftWall = this.matter.add.rectangle(
             x - halfW,
             y,
@@ -123,6 +124,7 @@ export default class GameScene extends Phaser.Scene {
         this.hairdryer.setInteractive();
         this.hairdryer.setIgnoreGravity(true);
         this.input.setDraggable(this.hairdryer);
+        this.sprites.push(this.hairdryer);
 
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
             dragY= Phaser.Math.Clamp(dragY, 24, 600-24);
@@ -134,19 +136,24 @@ export default class GameScene extends Phaser.Scene {
 
     }
 
+    /*scoring system here later*/
     update() {
         const isInBox = (sprite) => {
             const bounds = sprite.body.bounds;
             const boxBounds = this.box.getBounds();
-            const width = bounds.max.x - bounds.min.x;
-            const height = bounds.max.y - bounds.min.y;
 
-            const isInBox = bounds.max.x < boxBounds.right &&
+            const inside = bounds.max.x < boxBounds.right &&
                             bounds.min.x > boxBounds.left &&
                             bounds.max.y > boxBounds.top &&
                             bounds.min.y < boxBounds.bottom;
 
-
+            if (inside && (sprite.tintTopLeft !== 0xFF0000)) {
+                this.packed.add(sprite);
+            } else if (!inside && this.packed.has(sprite)) {
+                this.packed.delete(sprite);
+            }
+            return inside;
         }
+        this.sprites.forEach(sprite => isInBox(sprite));
     }
 }
