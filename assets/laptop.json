@@ -1,0 +1,32 @@
+{
+	"generator_info": "Shape definitions generated with PhysicsEditor. Visit https://www.codeandweb.com/physicseditor",
+	"laptop": {
+		"type": "fromPhysicsEditor",
+		"label": "laptop",
+		"isStatic": false,
+		"density": 0.1,
+		"restitution": 0,
+		"friction": 0.1,
+		"frictionAir": 0.01,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":73, "y":381 }, { "x":417, "y":381 }, { "x":417, "y":135 }, { "x":73, "y":135 } ],
+					[ { "x":442, "y":135 }, { "x":417, "y":135 }, { "x":417, "y":381 }, { "x":442, "y":381 } ],
+					[ { "x":48, "y":361 }, { "x":73, "y":361 }, { "x":73, "y":155 }, { "x":48, "y":155 } ],
+					[ { "x":466, "y":155 }, { "x":442, "y":155 }, { "x":442, "y":361 }, { "x":466, "y":361 } ],
+					[ { "x":98, "y":407 }, { "x":417, "y":407 }, { "x":417, "y":381 }, { "x":98, "y":381 } ],
+					[ { "x":98, "y":115 }, { "x":98, "y":135 }, { "x":417, "y":135 }, { "x":417, "y":115 } ]
+				]
+			}
+		]
+	}
+}

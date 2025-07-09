@@ -6,6 +6,10 @@ export default class GameScene extends Phaser.Scene {
     preload() {
         this.load.image('hairdryer', 'assets/hairdryer.png');
         this.load.json('hairdryerShape', 'assets/hairdryer.json');
+        this.load.image('laptop', 'assets/laptop.png');
+        this.load.json('laptopShape', 'assets/laptop.json');
+        this.load.image('flip', 'assets/flip.png');
+        this.load.image('rotate', 'assets/rotate.png');
     }
 
     create() {
@@ -18,6 +22,8 @@ export default class GameScene extends Phaser.Scene {
         this.box.setStrokeStyle(this.stroke, 0x614d3c);
         this.packed = new Set();
         this.sprites = [];
+        this.flip = this.add.image(1150, 550, 'flip');
+        this.rotate = this.add.image(1100, 550, 'rotate');
         this.leftWall = this.matter.add.rectangle(
             x - halfW,
             y,
@@ -50,6 +56,41 @@ export default class GameScene extends Phaser.Scene {
             { isStatic: true, isSensor: true }
 
         );
+
+        this.flip.setInteractive();
+        this.rotate.setInteractive();
+
+        const hairdryerShapes = this.cache.json.get('hairdryerShape');
+        this.hairdryer = this.matter.add.sprite(700, 200, 'hairdryer', null, {
+            shape: hairdryerShapes['hairdryer'],
+            isStatic: false,
+            restitution: 0,
+            friction: 0,
+            frictionStatic: 0,
+            frictionAir: 0,
+            inertia: Infinity
+        });
+        this.hairdryer.setScale(0.6);
+        this.hairdryer.setInteractive();
+        this.hairdryer.setIgnoreGravity(true);
+        this.input.setDraggable(this.hairdryer);
+        this.sprites.push(this.hairdryer);
+
+        const laptopShapes = this.cache.json.get('laptopShape');
+        this.laptop = this.matter.add.sprite(800, 200, 'laptop', null, {
+            shape: laptopShapes['laptop'],
+            isStatic: false,
+            restitution: 0,
+            friction: 0,
+            frictionStatic: 0,
+            frictionAir: 0,
+            inertia: Infinity
+        });
+        this.laptop.setScale(0.5);
+        this.laptop.setInteractive();
+        this.laptop.setIgnoreGravity(true);
+        this.input.setDraggable(this.laptop);
+        this.sprites.push(this.laptop);
 
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(({bodyA, bodyB}) => {
@@ -109,23 +150,6 @@ export default class GameScene extends Phaser.Scene {
             });
         });
 
-
-        const hairdryerShapes = this.cache.json.get('hairdryerShape');
-        this.hairdryer = this.matter.add.sprite(700, 200, 'hairdryer', null, {
-            shape: hairdryerShapes['hairdryer'],
-            isStatic: false,
-            restitution: 0,
-            friction: 0,
-            frictionStatic: 0,
-            frictionAir: 0,
-            inertia: Infinity
-        });
-        this.hairdryer.setScale(0.6);
-        this.hairdryer.setInteractive();
-        this.hairdryer.setIgnoreGravity(true);
-        this.input.setDraggable(this.hairdryer);
-        this.sprites.push(this.hairdryer);
-
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
             dragY= Phaser.Math.Clamp(dragY, 24, 600-24);
             dragX = Phaser.Math.Clamp(dragX, 24, 1200-24);
@@ -133,6 +157,15 @@ export default class GameScene extends Phaser.Scene {
             gameObject.x = dragX;
             gameObject.y = dragY;
         });
+
+        this.input.on('pointerover', () => {
+            this.input.manager.canvas.style.cursor = 'pointer';
+        });
+
+        this.input.on('pointerout', () => {
+            this.input.manager.canvas.style.cursor = 'default';
+        });
+
 
     }
 
