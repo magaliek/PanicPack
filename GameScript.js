@@ -9,7 +9,10 @@ const config = {
     pixelArt: true,
     backgroundColor: '#cdb4db',
     physics: {
-        default: 'matter'
+        default: 'matter',
+        matter: {
+            debug: true
+        }
     },
     scene: [/*StartScene,*/ GameScene]
 };

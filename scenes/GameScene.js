@@ -8,8 +8,8 @@ export default class GameScene extends Phaser.Scene {
         this.load.json('hairdryerShape', 'assets/hairdryer.json');
         this.load.image('laptop', 'assets/laptop.png');
         this.load.json('laptopShape', 'assets/laptop.json');
-        this.load.image('flip', 'assets/flip.png');
-        this.load.image('rotate', 'assets/rotate.png');
+        this.load.image('flipH', 'assets/flip.png');
+        this.load.image('flipV', 'assets/rotate.png');
     }
 
     create() {
@@ -22,8 +22,8 @@ export default class GameScene extends Phaser.Scene {
         this.box.setStrokeStyle(this.stroke, 0x614d3c);
         this.packed = new Set();
         this.sprites = [];
-        this.flip = this.add.image(1150, 550, 'flip');
-        this.rotate = this.add.image(1100, 550, 'rotate');
+        this.flipH = this.add.image(1150, 550, 'flipH');
+        this.flipV = this.add.image(1100, 550, 'flipV');
         this.leftWall = this.matter.add.rectangle(
             x - halfW,
             y,
@@ -57,8 +57,8 @@ export default class GameScene extends Phaser.Scene {
 
         );
 
-        this.flip.setInteractive();
-        this.rotate.setInteractive();
+        this.flipH.setInteractive();
+        this.flipV.setInteractive();
 
         const hairdryerShapes = this.cache.json.get('hairdryerShape');
         this.hairdryer = this.matter.add.sprite(700, 200, 'hairdryer', null, {
@@ -92,6 +92,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.setDraggable(this.laptop);
         this.sprites.push(this.laptop);
 
+        this.selected = this.laptop;
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(({bodyA, bodyB}) => {
                 const borders = [this.leftWall, this.rightWall, this.topWall, this.bottomWall];
@@ -156,6 +157,7 @@ export default class GameScene extends Phaser.Scene {
 
             gameObject.x = dragX;
             gameObject.y = dragY;
+            this.selected = gameObject;
         });
 
         this.input.on('pointerover', () => {
@@ -166,6 +168,13 @@ export default class GameScene extends Phaser.Scene {
             this.input.manager.canvas.style.cursor = 'default';
         });
 
+        this.flipH.on('pointerdown', () => {
+            this.selected.setFlipX(!this.selected.flipX);
+            console.log(this.selected);
+            if (this.selected === this.hairdryer) {
+
+            }
+        });
 
     }
 
@@ -176,9 +185,9 @@ export default class GameScene extends Phaser.Scene {
             const boxBounds = this.box.getBounds();
 
             const inside = bounds.max.x < boxBounds.right &&
-                            bounds.min.x > boxBounds.left &&
-                            bounds.max.y > boxBounds.top &&
-                            bounds.min.y < boxBounds.bottom;
+                bounds.min.x > boxBounds.left &&
+                bounds.max.y > boxBounds.top &&
+                bounds.min.y < boxBounds.bottom;
 
             if (inside && (sprite.tintTopLeft !== 0xFF0000)) {
                 this.packed.add(sprite);
