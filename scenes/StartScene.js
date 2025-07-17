@@ -6,7 +6,17 @@ export default class StartScene extends Phaser.Scene {
     create() {
         this.input.setDefaultCursor('default');
         const { width, height } = this.scale;
-        this.cameras.main.setBackgroundColor('#DCD6D3');
+        this.cameras.main.setBackgroundColor('#270b0b');
+
+        this.add.text(width / 2, height / 4, 'Disaster has hit! You must pack your bags and leave your house immediately!', {
+            font: '32px Chalkboard SE',
+            fill: '#9a2727',
+            wordWrap: {
+                width: 1000,
+                useAdvancedWrap: true
+            },
+            align: 'center'
+        }).setOrigin(0.5);
 
         const startText = this.add.text(width / 2, height / 2, 'Start Game', {
             font: '32px Chalkboard SE',

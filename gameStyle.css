@@ -5,10 +5,8 @@
     margin: auto;
     top: 50%;
     transform: translateY(-50%);
-    /*background-color: rgb(148, 180, 193, 0.5);*/
-    border: 1px double #547792;
+    border: 1px double #2c3e3e;
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     z-index: 1000;
     overflow: hidden;
 }

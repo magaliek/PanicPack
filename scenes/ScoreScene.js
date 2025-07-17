@@ -17,24 +17,25 @@ export default class ScoreScene extends Phaser.Scene {
 
         this.add.text(100, 200, this.text, {
             fontSize: '32px',
-            color: '0xff0000'
+            color: '0xff0000',
+            wordWrap: {
+                width: 1000,
+                useAdvancedWrap: true
+            }
         });
 
-        let currentX = 100;
-        this.packed.forEach((p, i) => {
-            const isLast = this.packed[i] === this.packed[this.packed.length-1];
-            const label = isLast ? p.texture.key : p.texture.key + ',';
+        const labelList = this.packed.map((p) => p.texture.key).join(', ');
 
-            const text = this.add.text(currentX, 300, label, {
-                fontSize: '12px',
-                color: '#000000',
-                wordWrap: {
-                    width: 1000,
-                    useAdvancedWrap: true
-                }
-            });
-            currentX += text.width + 5;
-        })
+        this.add.text(100, 400, labelList, {
+            fontSize: '12px',
+            color: '#000000',
+            wordWrap: {
+                width: 1000,
+                useAdvancedWrap: true
+            },
+            align: 'left' // or 'center'
+        });
+
 
         this.replay = this.add.text(100, 500, 'replay?', {
             fontSize: '32px',

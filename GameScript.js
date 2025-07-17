@@ -8,14 +8,11 @@ const config = {
     height: 600,
     parent: 'gameContainer',
     pixelArt: true,
-    backgroundColor: '#cdb4db',
+    backgroundColor: '#7c0819',
     physics: {
-        default: 'matter',
-        matter: {
-            debug: true
-        }
+        default: 'matter'
     },
     scene: [StartScene, GameScene, ScoreScene]
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);
