@@ -8,6 +8,36 @@ export default class GameScene extends Phaser.Scene {
         this.load.json('hairdryerShape', 'assets/hairdryer.json');
         this.load.image('laptop', 'assets/laptop.png');
         this.load.json('laptopShape', 'assets/laptop.json');
+        this.load.image('book', 'assets/book.png');
+        this.load.json('shapes', 'assets/shapes.json');
+        this.load.image('batteries', 'assets/batteries.png');
+        this.load.image('beer', 'assets/beer.png');
+        this.load.image('cologne', 'assets/cologne.png');
+        this.load.image('dog food', 'assets/dog food.png');
+        this.load.image('first aid kit', 'assets/first aid kit.png');
+        this.load.image('flashlight', 'assets/flashlight.png');
+        this.load.image('gasmask', 'assets/gasmask.png');
+        this.load.image('jewelrybox', 'assets/jewelrybox.png');
+        this.load.image('makeup bag', 'assets/makeup bag.png');
+        this.load.image('matches', 'assets/matches.png');
+        this.load.image('mouthwash', 'assets/mouthwash.png');
+        this.load.image('mre', 'assets/mre.png');
+        this.load.image('passport', 'assets/passport.png');
+        this.load.image('portable power gen', 'assets/portable power gen.png');
+        this.load.image('portable stove', 'assets/portable stove.png');
+        this.load.image('pot', 'assets/pot.png');
+        this.load.image('power bank', 'assets/power bank.png');
+        this.load.image('protein bar', 'assets/protein bar.png');
+        this.load.image('ps5', 'assets/ps5.png');
+        this.load.image('rope', 'assets/rope.png');
+        this.load.image('soap', 'assets/soap.png');
+        this.load.image('swiss knife', 'assets/swiss knife.png');
+        this.load.image('teddy bear', 'assets/teddy bear.png');
+        this.load.image('tent', 'assets/tent.png');
+        this.load.image('thermos', 'assets/thermos.png');
+        this.load.image('toilet', 'assets/toilet.png');
+        this.load.image('toothbrush', 'assets/toothbrush.png');
+        this.load.image('wallet', 'assets/wallet.png');
     }
 
     create() {
@@ -55,27 +85,9 @@ export default class GameScene extends Phaser.Scene {
 
         );
 
-        this.hairdryer = this.matter.add.sprite(600, 200, 'hairdryer', null, {
-            shape: this.cache.json.get('hairdryerShape')['hairdryer']
-        });
-
-        this.hairdryer.setScale(0.6);
-        this.hairdryer.setFixedRotation();
-        this.hairdryer.setIgnoreGravity(true);
-        this.hairdryer.setInteractive();
-
-        this.laptop = this.matter.add.sprite(800, 200, 'laptop', null, {
-            shape: this.cache.json.get('laptopShape')['laptop']
-        });
-
-        this.laptop.setScale(0.5);
-        this.laptop.setFixedRotation();
-        this.laptop.setIgnoreGravity(true);
-        this.laptop.setInteractive();
-
-        this.sprites.push(this.hairdryer, this.laptop);
-        this.input.setDraggable(this.hairdryer);
-        this.input.setDraggable(this.laptop);
+        this.hairdryer = this.makeSprite(0.5, this.sprites, 600, 200, 'hairdryerShape', 'hairdryer');
+        this.laptop = this.makeSprite(0.4, this.sprites, 800, 200, 'laptopShape', 'laptop');
+        this.book = this.makeSprite(0.1, this.sprites, 1000, 200, 'shapes', 'book');
 
         this.selected = this.laptop;
 
@@ -99,20 +111,52 @@ export default class GameScene extends Phaser.Scene {
         this.warning.setVisible(this.warningshown);
         myText.setInteractive();
 
+        this.tooltip = this.add.text(0, 0, 'hairdryer', {
+            fontFamily: 'roboto',
+            fontSize: '32px',
+            fontWeight: '100',
+            color: '#000000',
+            align: 'center',
+            padding: { x: 6, y: 4 }
+        }).setDepth(10).setVisible(false);
+        this.tooltipFollow = this.hairdryer;
+
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
             dragY = Phaser.Math.Clamp(dragY, 24, 600 - 24);
             dragX = Phaser.Math.Clamp(dragX, 24, 1200 - 24);
 
             this.matter.body.setPosition(gameObject.body, { x: dragX, y: dragY });
             this.selected = gameObject;
+
+            if (this.tooltip.visible && this.tooltipFollow === gameObject) {
+                this.tooltip.setPosition(
+                    dragX - gameObject.displayWidth / 4,
+                    dragY + gameObject.displayHeight / 2
+                );
+            }
+
         });
 
-        this.input.on('pointerover', () => {
+        this.input.on('pointerover', (pointer) => {
             this.input.manager.canvas.style.cursor = 'pointer';
         });
 
         this.input.on('pointerout', () => {
             this.input.manager.canvas.style.cursor = 'default';
+        });
+
+        this.sprites.forEach(sprite => {
+            sprite.on('pointerover', () => {
+                this.tooltip.setText(sprite.texture.key);
+                this.tooltip.setPosition(sprite.x - sprite.displayWidth/4, sprite.y+sprite.displayHeight/2);
+                this.tooltip.setVisible(true);
+                this.tooltipFollow = sprite;
+            });
+
+            sprite.on('pointerout', () => {
+                this.tooltip.setVisible(false);
+                this.tooltipFollow = null;
+            })
         });
 
         myText.on('pointerdown', () => {
@@ -151,8 +195,7 @@ export default class GameScene extends Phaser.Scene {
                 text = 'you survived 3 months. You are thriving';
             }
 
-            console.log(score);
-            this.scene.start('ScoreScene', {score: score, text: text});
+            this.scene.start('ScoreScene', {score: score, text: text, packed: Array.from(this.packed)});
         });
 
         this.graphics = this.add.graphics();
@@ -161,8 +204,6 @@ export default class GameScene extends Phaser.Scene {
 
     update() {
         this.sprites.forEach(sprite => {
-            const bounds = sprite.getBounds();
-
             const touchingLeft = this.matter.overlap(sprite, this.leftWall);
             const touchingRight = this.matter.overlap(sprite, this.rightWall);
             const touchingTop = this.matter.overlap(sprite, this.topWall);
@@ -182,8 +223,15 @@ export default class GameScene extends Phaser.Scene {
                 sprite.clearTint();
             }
 
-            const overlapsBox = Phaser.Geom.Intersects.RectangleToRectangle(bounds, this.box.getBounds());
-            const fullyInside = overlapsBox && touchingBorders.size === 0;
+            const bodyBounds = sprite.body.bounds;
+            const boxBounds = this.box.getBounds();
+
+            const fullyInside =
+                bodyBounds.min.x >= boxBounds.x &&
+                bodyBounds.max.x <= boxBounds.x + boxBounds.width &&
+                bodyBounds.min.y >= boxBounds.y &&
+                bodyBounds.max.y <= boxBounds.y + boxBounds.height &&
+                !this.touchingBorders.has(sprite);
 
             if (fullyInside) {
                 this.packed.add(sprite);
@@ -191,5 +239,20 @@ export default class GameScene extends Phaser.Scene {
                 this.packed.delete(sprite);
             }
         });
+    }
+
+    makeSprite(scale, list, x, y, shape, key) {
+        const sprite = this.matter.add.sprite(x, y, key, null, {
+            shape: this.cache.json.get(shape)[key]
+        });
+
+        sprite.setScale(scale);
+        sprite.setFixedRotation();
+        sprite.setIgnoreGravity(true);
+        sprite.setInteractive();
+
+        this.input.setDraggable(sprite);
+        list.push(sprite);
+        return sprite;
     }
 }
