@@ -3,7 +3,25 @@ export default class StartScene extends Phaser.Scene {
         super('StartScene');
     }
 
+    preload() {
+        this.load.audio('intromusic', 'assets/startmusic.mp3');
+        this.load.image('mute', 'assets/sound icon.png');
+        this.load.image('unmute', 'assets/mute icon.png');
+    }
+
     create() {
+        this.music = this.sound.add('intromusic', {
+            loop: true,
+            volume: 0
+        })
+        this.music.play();
+
+        this.tweens.add({
+            targets: this.music,
+            volume: 0.5,
+            duration: 2000
+        });
+
         this.input.setDefaultCursor('default');
         const { width, height } = this.scale;
         this.cameras.main.setBackgroundColor('#270b0b');
@@ -25,7 +43,7 @@ export default class StartScene extends Phaser.Scene {
 
         startText.on('pointerover', () => {
             this.input.setDefaultCursor('pointer');
-            startText.setStroke('#611d1d', 1);
+            startText.setStroke('#f1a6a6', 1);
         });
 
         startText.on('pointerout', () => {
@@ -34,7 +52,33 @@ export default class StartScene extends Phaser.Scene {
         });
 
         startText.on('pointerdown', () => {
-            this.scene.start('GameScene');
+            this.tweens.add({
+                targets: this.music,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                    this.music.stop();
+                    this.scene.start('GameScene');
+                }
+            });
         });
+
+        this.mute = this.add.sprite(1150, 550, 'mute', null).setInteractive();
+        this.mute.on('pointerdown', () => {
+            if (this.mute.texture.key === 'mute') {
+                this.mute.setTexture('unmute');
+            } else {
+                this.mute.setTexture('mute');
+            }
+
+            if (this.music.isPlaying) {
+                this.music.pause();
+            } else {
+                this.music.resume();
+            }
+        });
+        this.mute.on('pointerover', () => {
+            this.input.setDefaultCursor('pointer');
+        })
     }
 }

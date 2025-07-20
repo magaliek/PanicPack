@@ -3,6 +3,7 @@ export default class GameScene extends Phaser.Scene {
         super('GameScene');
     }
 
+    //loading all assets
     preload() {
         this.load.json('shapes', 'assets/shapes.json');
         this.load.image('hairdryer', 'assets/hairdryer.png');
@@ -36,9 +37,13 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('toilet paper', 'assets/toilet paper.png');
         this.load.image('toothbrush', 'assets/toothbrush.png');
         this.load.image('wallet', 'assets/wallet.png');
+        this.load.audio('gamemusic', 'assets/game music.mp3');
+        this.load.image('mute', 'assets/sound icon.png');
+        this.load.image('unmute', 'assets/mute icon.png');
     }
 
     create() {
+        //box that serves as the "backpack"
         this.box = this.add.rectangle(180, 300, 300, 400, 0x120001);
         this.box.setStrokeStyle(10, 0x421922);
 
@@ -46,10 +51,28 @@ export default class GameScene extends Phaser.Scene {
         const halfW = boxW / 2;
         const halfH = boxH / 2;
         this.stroke = 10;
+        //to check collision with multiple borders at once
         this.touchingBorders = new Map();
+        //sprites packed
         this.packed = new Set();
+        //all sprites
         this.sprites = [];
 
+        this.music = this.sound.add('gamemusic', {
+            loop: true,
+            volume: 0
+        });
+
+        this.music.play();
+
+        //fade in
+        this.tweens.add({
+            targets: this.music,
+            volume: 0.5,
+            duration: 1000
+        });
+
+        //borders with bodies for collision check (for backpack). made as sensor so the sprites can go through
         this.leftWall = this.matter.add.rectangle(
             x - halfW,
             y,
@@ -83,6 +106,31 @@ export default class GameScene extends Phaser.Scene {
 
         );
 
+        //this is invisible static walls to prevent sprites from being pushed out of bounds accidentally
+        const {width, height} = this.scale;
+        const thickness = 50;
+
+        //left wall
+        this.matter.add.rectangle(-thickness / 2, height / 2, thickness, height, {
+            isStatic: true
+        });
+
+        // Right wall
+        this.matter.add.rectangle(width + thickness / 2, height / 2, thickness, height, {
+            isStatic: true
+        });
+
+        // Top wall
+        this.matter.add.rectangle(width / 2, -thickness / 2, width, thickness, {
+            isStatic: true
+        });
+
+        // Bottom wall
+        this.matter.add.rectangle(width / 2, height + thickness / 2, width, thickness, {
+            isStatic: true
+        });
+
+        //sprites
         this.hairdryer = this.makeSprite(0.4, this.sprites, 400, 100, 'hairdryer');
         this.laptop = this.makeSprite(0.3, this.sprites, 500, 100, 'laptop');
         this.book = this.makeSprite(0.1, this.sprites, 600, 100, 'survival book');
@@ -115,6 +163,7 @@ export default class GameScene extends Phaser.Scene {
         this.toothbrush = this.makeSprite(0.05, this.sprites, 900, 400, 'toothbrush');
         this.wallet = this.makeSprite(0.05, this.sprites, 1000, 400, 'wallet');
 
+        //need a selection for labels
         this.selected = this.laptop;
 
         const myText = this.add.text(950, 550, 'Done?', {
@@ -125,6 +174,17 @@ export default class GameScene extends Phaser.Scene {
             color: '#b4f8f3',
         });
 
+        myText.on('pointerover', () => {
+            this.input.setDefaultCursor('pointer');
+            myText.setStroke('#f1a6a6', 1);
+        })
+
+        myText.on('pointerout', () => {
+            this.input.setDefaultCursor('default');
+            myText.setStroke('#b4f8f3', 0);
+        });
+
+        //if not in the borders (fitted)
         this.warningshown = false;
         this.warning = this.add.text(600, 300, 'Overflow of objects! Remove something.', {
             fontFamily: 'roboto',
@@ -137,6 +197,7 @@ export default class GameScene extends Phaser.Scene {
         this.warning.setVisible(this.warningshown);
         myText.setInteractive();
 
+        //label
         this.tooltip = this.add.text(0, 0, 'hairdryer', {
             fontFamily: 'Bebas Neue',
             fontSize: '24px',
@@ -146,8 +207,8 @@ export default class GameScene extends Phaser.Scene {
         this.tooltipFollow = this.hairdryer;
 
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            dragY = Phaser.Math.Clamp(dragY, 48, 600 - 48);
-            dragX = Phaser.Math.Clamp(dragX, 48, 1200 - 48);
+            dragY = Phaser.Math.Clamp(dragY, 25, 600 - 25);
+            dragX = Phaser.Math.Clamp(dragX, 25, 1200 - 25);
 
             this.matter.body.setPosition(gameObject.body, { x: dragX, y: dragY });
             this.selected = gameObject;
@@ -169,6 +230,7 @@ export default class GameScene extends Phaser.Scene {
             this.input.manager.canvas.style.cursor = 'default';
         });
 
+        //label and making the label follow the sprite
         this.sprites.forEach(sprite => {
             sprite.on('pointerover', () => {
                 this.tooltip.setText(sprite.texture.key);
@@ -183,6 +245,7 @@ export default class GameScene extends Phaser.Scene {
             })
         });
 
+        //showing warning. the delay is so it's not immediately destroyed so it looks like it never appeared
         myText.on('pointerdown', () => {
             const anyOverflow = this.sprites.some(sprite => this.touchingBorders.has(sprite));
 
@@ -206,18 +269,37 @@ export default class GameScene extends Phaser.Scene {
                 })
             }
 
+            //scoring system. after testing decided this was good
             if (score < 50) {
                 text = "you survived 3 days before dying";
             } else if (score >= 50 && score <= 100) {
                 text = 'you survived 2 weeks before managing to find shelter. Most of your things were taken by the surviving authorities. You received some compensation for it and will probably survive if you keep your wits about you.';
             } else if (score >= 100 && score <= 180) {
                 text = 'you survived 3 months so far. You made your own little shelter somewhere in the forest and managed to stay there for now. The future is uncertain.';
-            } else {
+            } else if (score >= 180 && score <= 199) {
                 text = 'Not only did you survive, you managed to rescue people and together you guys created a micro community with a very high chance of survival and growth. However, always beware of social dynamics.'
+            } else {
+                text = 'you are the packing God. Humanity was saved thanks to your packing genius. How did you do it? You legend.'
             }
 
+            //if the warning isnt shown you can go to the scoring.
             if (!this.warningshown) {
-                this.scene.start('ScoreScene', {score: score, text: text, packed: Array.from(this.packed)});
+                this.scene.start('ScoreScene', {score: score, text: text, packed: Array.from(this.packed), music: this.music});
+            }
+        });
+
+        this.mute = this.add.sprite(1150, 550, 'mute', null).setInteractive();
+        this.mute.on('pointerdown', () => {
+            if (this.mute.texture.key === 'mute') {
+                this.mute.setTexture('unmute');
+            } else {
+                this.mute.setTexture('mute');
+            }
+
+            if (this.music.isPlaying) {
+                this.music.pause();
+            } else {
+                this.music.resume();
             }
         });
     }
@@ -229,12 +311,14 @@ export default class GameScene extends Phaser.Scene {
             const touchingTop = this.matter.overlap(sprite, this.topWall);
             const touchingBottom = this.matter.overlap(sprite, this.bottomWall);
 
+            //this checks collision properly
             const touchingBorders = new Set();
             if (touchingLeft) touchingBorders.add('left');
             if (touchingRight) touchingBorders.add('right');
             if (touchingTop) touchingBorders.add('top');
             if (touchingBottom) touchingBorders.add('bottom');
 
+            //adding it as a set makes it easy to track
             if (touchingBorders.size > 0) {
                 this.touchingBorders.set(sprite, touchingBorders);
                 sprite.setTint(0xff0000);
@@ -246,6 +330,7 @@ export default class GameScene extends Phaser.Scene {
             const bodyBounds = sprite.body.bounds;
             const boxBounds = this.box.getBounds();
 
+            //checking that the sprite isn't added to this.packed unless fully inside and not touching any borders
             const fullyInside =
                 bodyBounds.min.x >= boxBounds.x &&
                 bodyBounds.max.x <= boxBounds.x + boxBounds.width &&
@@ -261,6 +346,7 @@ export default class GameScene extends Phaser.Scene {
         });
     }
 
+    //helper method to make sprites. helpful to declutter bc there were so many sprites. made my life easier. optimisation baby
     makeSprite(scale, list, x, y, key) {
         const sprite = this.matter.add.sprite(x, y, key, null, {
             shape: this.cache.json.get('shapes')[key]
@@ -276,6 +362,7 @@ export default class GameScene extends Phaser.Scene {
         return sprite;
     }
 
+    //scoring system. based on my personal opinion
     calcScore(sprite) {
         if (sprite===this.hairdryer) {
             return -8;
