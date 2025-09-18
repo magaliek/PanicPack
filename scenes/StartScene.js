@@ -38,7 +38,7 @@ export default class StartScene extends Phaser.Scene {
 
         const startText = this.add.text(width / 2, height / 2, 'Start Game', {
             font: '32px Chalkboard SE',
-            fill: '#000'
+            fill: '#00FF00'
         }).setOrigin(0.5).setInteractive();
 
         startText.on('pointerover', () => {
