@@ -1,9 +1,9 @@
 import {TIMERTYPE} from "./TimerType.js";
 
 export const GameConfiguration = {
-    timer: false,
+    timer: true,
     timerType: TIMERTYPE.BACKWARD,
-    seconds: 13,
+    seconds: 150,
     onboardingText: 'Drag objects into the box to bring with you. ' +
         'Every object has a value, some objects deduct points and others add points to your score. ' +
         'The more useful objects you add the higher your score will be. To rotate object, press space.',
