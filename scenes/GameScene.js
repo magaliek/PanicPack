@@ -1,3 +1,7 @@
+import {GameConfiguration} from "../config/GameConfiguration.js";
+import {SPRITES} from "../config/sprites.js";
+import {TIMERTYPE} from "../config/TimerType.js";
+
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super('GameScene');
@@ -5,39 +9,14 @@ export default class GameScene extends Phaser.Scene {
 
     //loading all assets
     preload() {
-        this.load.json('shapes', 'assets/shapes.json');
-        this.load.image('hairdryer', 'assets/hairdryer.png');
-        this.load.image('laptop', 'assets/laptop.png');
-        this.load.image('survival book', 'assets/survival book.png');
-        this.load.image('batteries', 'assets/batteries.png');
-        this.load.image('beer', 'assets/beer.png');
-        this.load.image('cologne', 'assets/cologne.png');
-        this.load.image('dog food', 'assets/dog food.png');
-        this.load.image('first aid kit', 'assets/first aid kit.png');
-        this.load.image('flashlight', 'assets/flashlight.png');
-        this.load.image('gas mask', 'assets/gas mask.png');
-        this.load.image('jewelry box', 'assets/jewelry box.png');
-        this.load.image('makeup bag', 'assets/makeup bag.png');
-        this.load.image('matches', 'assets/matches.png');
-        this.load.image('mouthwash', 'assets/mouthwash.png');
-        this.load.image('mre', 'assets/mre.png');
-        this.load.image('passport', 'assets/passport.png');
-        this.load.image('portable power gen', 'assets/portable power gen.png');
-        this.load.image('portable stove', 'assets/portable stove.png');
-        this.load.image('pot', 'assets/pot.png');
-        this.load.image('power bank', 'assets/power bank.png');
-        this.load.image('protein bar', 'assets/protein bar.png');
-        this.load.image('ps5', 'assets/ps5.png');
-        this.load.image('rope', 'assets/rope.png');
-        this.load.image('soap', 'assets/soap.png');
-        this.load.image('swiss knife', 'assets/swiss knife.png');
-        this.load.image('teddy bear', 'assets/teddy bear.png');
-        this.load.image('tent bag', 'assets/tent bag.png');
-        this.load.image('thermos', 'assets/thermos.png');
-        this.load.image('toilet paper', 'assets/toilet paper.png');
-        this.load.image('toothbrush', 'assets/toothbrush.png');
-        this.load.image('wallet', 'assets/wallet.png');
+        SPRITES.forEach(sprite => {
+            this.load.image(sprite.key, sprite.file);
+        });
+
         this.load.audio('gamemusic', 'assets/game music.mp3');
+
+
+        this.load.json('shapes', 'assets/shapes.json');
         this.load.image('mute', 'assets/sound icon.png');
         this.load.image('unmute', 'assets/mute icon.png');
     }
@@ -47,28 +26,34 @@ export default class GameScene extends Phaser.Scene {
         this.box = this.add.rectangle(180, 300, 300, 400, 0x120001);
         this.box.setStrokeStyle(10, 0x421922);
 
-        const { x, y, width: boxW, height: boxH } = this.box;
+        const {x, y, width: boxW, height: boxH} = this.box;
         const halfW = boxW / 2;
         const halfH = boxH / 2;
         this.stroke = 10;
+        this.selected = null;
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
         //to check collision with multiple borders at once
         this.touchingBorders = new Map();
         //sprites packed
         this.packed = new Set();
-        //all sprites
-        this.sprites = [];
+        //all sprites, optimised
+        this.sprites = SPRITES.map(sprite =>
+            this.makeSprite(sprite.scale, sprite.x, sprite.y, sprite.key));
 
         this.music = this.sound.add('gamemusic', {
             loop: true,
             volume: 0
         });
 
+        this.SCORE_BY_KEY = new Map(SPRITES.map(s => [s.key, s.score]));
+
         this.music.play();
 
         //fade in
         this.tweens.add({
             targets: this.music,
-            volume: 0.5,
+            volume: 1,
             duration: 1000
         });
 
@@ -78,7 +63,7 @@ export default class GameScene extends Phaser.Scene {
             y,
             this.stroke,
             boxH,
-            { isStatic: true, isSensor: true }
+            {isStatic: true, isSensor: true}
         );
 
         this.rightWall = this.matter.add.rectangle(
@@ -86,7 +71,7 @@ export default class GameScene extends Phaser.Scene {
             y,
             this.stroke,
             boxH,
-            { isStatic: true, isSensor: true }
+            {isStatic: true, isSensor: true}
         );
 
         this.topWall = this.matter.add.rectangle(
@@ -94,7 +79,7 @@ export default class GameScene extends Phaser.Scene {
             y - halfH,
             boxW,
             this.stroke,
-            { isStatic: true, isSensor: true }
+            {isStatic: true, isSensor: true}
         );
 
         this.bottomWall = this.matter.add.rectangle(
@@ -102,8 +87,7 @@ export default class GameScene extends Phaser.Scene {
             y + halfH,
             boxW,
             this.stroke,
-            { isStatic: true, isSensor: true }
-
+            {isStatic: true, isSensor: true}
         );
 
         //this is invisible static walls to prevent sprites from being pushed out of bounds accidentally
@@ -130,39 +114,6 @@ export default class GameScene extends Phaser.Scene {
             isStatic: true
         });
 
-        //sprites
-        this.hairdryer = this.makeSprite(0.4, this.sprites, 400, 100, 'hairdryer');
-        this.laptop = this.makeSprite(0.3, this.sprites, 500, 100, 'laptop');
-        this.book = this.makeSprite(0.1, this.sprites, 600, 100, 'survival book');
-        this.batteries = this.makeSprite(0.1, this.sprites, 700, 100, 'batteries');
-        this.beer = this.makeSprite(0.1, this.sprites, 800, 100, 'beer');
-        this.cologne = this.makeSprite(0.1, this.sprites, 900, 100, 'cologne');
-        this.dogfood = this.makeSprite(0.1, this.sprites, 1000, 100, 'dog food');
-        this.firstaidkit = this.makeSprite(0.15, this.sprites, 1100, 100, 'first aid kit');
-        this.flashlight = this.makeSprite(0.08, this.sprites, 400, 200, 'flashlight');
-        this.gasmask = this.makeSprite(0.1, this.sprites, 500, 200, 'gas mask');
-        this.jewelrybox = this.makeSprite(0.1, this.sprites, 600, 200, 'jewelry box');
-        this.makeupbag = this.makeSprite(0.1, this.sprites, 700, 200, 'makeup bag');
-        this.matches = this.makeSprite(0.05, this.sprites, 800, 200, 'matches');
-        this.mouthwash = this.makeSprite(0.09, this.sprites, 900, 200, 'mouthwash');
-        this.mre = this.makeSprite(0.09, this.sprites, 1000, 200, 'mre');
-        this.passport = this.makeSprite(0.05, this.sprites, 1100, 200, 'passport');
-        this.portablepowergen = this.makeSprite(0.15, this.sprites, 400, 300, 'portable power gen');
-        this.portablestove = this.makeSprite(0.1, this.sprites, 500, 300, 'portable stove');
-        this.pot = this.makeSprite(0.1, this.sprites, 600, 300, 'pot');
-        this.powerbank = this.makeSprite(0.05, this.sprites, 700, 300, 'power bank');
-        this.proteinbar = this.makeSprite(0.05, this.sprites, 800, 300, 'protein bar');
-        this.ps5 = this.makeSprite(0.13, this.sprites, 900, 300, 'ps5');
-        this.rope = this.makeSprite(0.1, this.sprites, 1000, 300, 'rope');
-        this.soap = this.makeSprite(0.07, this.sprites, 1100, 300, 'soap');
-        this.swissknife = this.makeSprite(0.05, this.sprites, 400, 400, 'swiss knife');
-        this.teddybear = this.makeSprite(0.1, this.sprites, 500, 400, 'teddy bear');
-        this.tent = this.makeSprite(0.1, this.sprites, 600, 400, 'tent bag');
-        this.thermos = this.makeSprite(0.05, this.sprites, 700, 400, 'thermos');
-        this.toilet = this.makeSprite(0.1, this.sprites, 800, 400, 'toilet paper');
-        this.toothbrush = this.makeSprite(0.05, this.sprites, 900, 400, 'toothbrush');
-        this.wallet = this.makeSprite(0.05, this.sprites, 1000, 400, 'wallet');
-
         //need a selection for labels
         this.selected = this.laptop;
 
@@ -181,7 +132,7 @@ export default class GameScene extends Phaser.Scene {
 
         myText.on('pointerout', () => {
             this.input.setDefaultCursor('default');
-            myText.setStroke('#b4f8f3', 0);
+            myText.setStroke('#fff', 0);
         });
 
         //if not in the borders (fitted)
@@ -191,10 +142,49 @@ export default class GameScene extends Phaser.Scene {
             fontSize: '48px',
             color: '#ff0000',
             backgroundColor: '#fff0f0',
-            padding: { x: 10, y: 5 },
+            padding: {x: 10, y: 5},
             align: 'center'
-        }).setOrigin(0.5).setDepth(100);
+        }).setOrigin(0.5).setDepth(1000);
         this.warning.setVisible(this.warningshown);
+
+        this.timesUpText = this.add.text(600, 300, 'Times Up!', {
+            fontFamily: 'roboto',
+            fontSize: '32px',
+            color: '#f8c7c7',
+            padding: {x: 10, y: 5},
+            align: 'center'
+        }).setOrigin(0.5).setDepth(1000);
+        this.timesUpText.setStroke('#ffffff', 2);
+
+        const tbounds = this.timesUpText.getBounds();
+        const tubg = this.add.rectangle(tbounds.centerX, tbounds.centerY, tbounds.width, tbounds.height, 0x000, 0.5);
+        this.timesUpText.setVisible(false);
+        tubg.setVisible(false);
+
+        if (!this.onboarded) {
+            this.onboarding = this.add.text(600, 300, GameConfiguration.onboardingText, {
+                fontFamily: 'roboto',
+                fontSize: '32px',
+                color: '#ffffff',
+                padding: {x: 10, y: 5},
+                align: 'center',
+                wordWrap: {
+                    width: width / 1.5,
+                    useAdvancedWrap: true
+                }
+            }).setStroke('#000', 5);
+            this.onboarding.setOrigin(0.5).setDepth(100);
+            const bounds = this.onboarding.getBounds();
+            this.onboardingBg = this.add.rectangle(bounds.centerX, bounds.centerY, bounds.width, bounds.height, 0x000000, 0.5);
+
+            this.onboarded = true;
+        }
+
+        this.input.on('pointerdown', () => {
+            this.onboarding.setVisible(false);
+            this.onboardingBg.setVisible(false);
+        });
+
         myText.setInteractive();
 
         //label
@@ -205,10 +195,12 @@ export default class GameScene extends Phaser.Scene {
             align: 'center'
         }).setDepth(10).setVisible(false);
         this.tooltipFollow = this.hairdryer;
+        this.tooltip.setShadow(1,1, '#000', 0, true, true);
+        this.tooltip.setStroke('#000', 3);
 
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            dragY = Phaser.Math.Clamp(dragY, 25, 600 - 25);
-            dragX = Phaser.Math.Clamp(dragX, 25, 1200 - 25);
+            dragY = Phaser.Math.Clamp(dragY, 0, this.scale.height);
+            dragX = Phaser.Math.Clamp(dragX, 0, this.scale.width);
 
             this.matter.body.setPosition(gameObject.body, { x: dragX, y: dragY });
             this.selected = gameObject;
@@ -234,7 +226,7 @@ export default class GameScene extends Phaser.Scene {
         this.sprites.forEach(sprite => {
             sprite.on('pointerover', () => {
                 this.tooltip.setText(sprite.texture.key);
-                this.tooltip.setPosition(sprite.x - sprite.displayWidth/4, sprite.y+sprite.displayHeight/2);
+                this.tooltip.setPosition(sprite.x - sprite.displayWidth/4, sprite.y+sprite.displayHeight/3);
                 this.tooltip.setVisible(true);
                 this.tooltipFollow = sprite;
             });
@@ -261,32 +253,55 @@ export default class GameScene extends Phaser.Scene {
                 });
             }
 
-            let score=0;
-            let text='';
             if (!this.warningshown) {
-                this.packed.forEach(p => {
-                    score += this.calcScore(p);
-                })
-            }
-
-            //scoring system. after testing decided this was good
-            if (score < 50) {
-                text = "you survived 3 days before dying";
-            } else if (score >= 50 && score <= 100) {
-                text = 'you survived 2 weeks before managing to find shelter. Most of your things were taken by the surviving authorities. You received some compensation for it and will probably survive if you keep your wits about you.';
-            } else if (score >= 100 && score <= 180) {
-                text = 'you survived 3 months so far. You made your own little shelter somewhere in the forest and managed to stay there for now. The future is uncertain.';
-            } else if (score >= 180 && score <= 199) {
-                text = 'Not only did you survive, you managed to rescue people and together you guys created a micro community with a very high chance of survival and growth. However, always beware of social dynamics.'
-            } else {
-                text = 'you are the packing God. Humanity was saved thanks to your packing genius. How did you do it? You legend.'
-            }
-
-            //if the warning isnt shown you can go to the scoring.
-            if (!this.warningshown) {
-                this.scene.start('ScoreScene', {score: score, text: text, packed: Array.from(this.packed), music: this.music});
+                this.finalise();
             }
         });
+
+        //timer
+        if (GameConfiguration.timer) {
+            this.timeAmount = GameConfiguration.timerType === TIMERTYPE.FORWARD ? 0 : GameConfiguration.seconds;
+            this.countText = this.add.text(width/2, 0, `${this.timeAmount}`, {fontSize: '32px', fill: '#fff'});
+            if (GameConfiguration.timerType === TIMERTYPE.FORWARD) {
+                this.timerEvent = this.time.addEvent({
+                    delay: 1000,
+                    loop: true,
+                    callback: () => {
+                        if (this.timeAmount < GameConfiguration.seconds) {
+                            this.timeAmount++;
+                            this.countText.setText(`${this.timeAmount}`);
+                            if (this.timeAmount === GameConfiguration.seconds) {
+                                this.timerEvent.paused = true;
+                                this.timesUpText.setVisible(true);
+                                tubg.setVisible(true);
+                                this.time.delayedCall(2000, () => {
+                                    this.finalise();
+                                });
+                            }
+                        }
+                    }
+                });
+            } else if (GameConfiguration.timerType === TIMERTYPE.BACKWARD) {
+                this.timerEvent = this.time.addEvent({
+                    delay: 1000,
+                    loop: true,
+                    callback: () => {
+                        if (this.timeAmount > 0) {
+                            this.timeAmount--;
+                            this.countText.setText(`${this.timeAmount}`);
+                            if (this.timeAmount === 0) {
+                                this.timerEvent.paused = true;
+                                this.timesUpText.setVisible(true);
+                                tubg.setVisible(true);
+                                this.time.delayedCall(2000, () => {
+                                    this.finalise();
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        }
 
         this.mute = this.add.sprite(1150, 550, 'mute', null).setInteractive();
         this.mute.on('pointerdown', () => {
@@ -302,6 +317,7 @@ export default class GameScene extends Phaser.Scene {
                 this.music.resume();
             }
         });
+
     }
 
     update() {
@@ -344,119 +360,62 @@ export default class GameScene extends Phaser.Scene {
                 this.packed.delete(sprite);
             }
         });
+
+        //rotation logic
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && this.selected) {
+            const Body = Phaser.Physics.Matter.Matter.Body;
+            Body.setAngle(
+                this.selected.body,
+                this.selected.body.angle + Phaser.Math.DegToRad(90)
+            );
+        }
     }
 
-    //helper method to make sprites. helpful to declutter bc there were so many sprites. made my life easier. optimisation baby
-    makeSprite(scale, list, x, y, key) {
+    //helper method to make sprites. helpful to declutter bc there were so many sprites. made my life easier. optimisation babyyy
+    makeSprite(scale, x, y, key) {
         const sprite = this.matter.add.sprite(x, y, key, null, {
             shape: this.cache.json.get('shapes')[key]
         });
-
+        //not a runtime issue
         sprite.setScale(scale);
         sprite.setFixedRotation();
         sprite.setIgnoreGravity(true);
         sprite.setInteractive();
 
         this.input.setDraggable(sprite);
-        list.push(sprite);
+        sprite.setInteractive;
+        sprite.on('pointerdown', () => {
+            this.selected = sprite;
+        })
         return sprite;
     }
 
-    //scoring system. based on my personal opinion
-    calcScore(sprite) {
-        if (sprite===this.hairdryer) {
-            return -8;
+    finalise() {
+        let score = 0;
+        let text = '';
+
+        this.packed.forEach(p => {
+            const key = p.texture?.key;
+            score += this.SCORE_BY_KEY.get(key) ?? 0;
+        })
+
+
+
+        if (score < GameConfiguration.score1) {
+            text = GameConfiguration.ending1;
+        } else if (score >= GameConfiguration.score1 && score <= GameConfiguration.score2) {
+            text = GameConfiguration.ending2;
+        } else if (score >= GameConfiguration.score2 && score <= GameConfiguration.score3) {
+            text = GameConfiguration.ending3;
+        } else if (score >= GameConfiguration.score3 && score <= GameConfiguration.score4) {
+            text = GameConfiguration.ending4;
+        } else {
+            text = GameConfiguration.ending5;
         }
-        if (sprite===this.laptop) {
-            return 8;
+
+        //if the warning isn't shown you can go to the scoring.
+        if (!this.warningshown) {
+            this.scene.start('ScoreScene', {score: score, text: text, packed: Array.from(this.packed), music: this.music});
         }
-        if (sprite===this.batteries) {
-            return 2;
-        }
-        if (sprite===this.beer) {
-            return -10;
-        }
-        if (sprite===this.book) {
-            return 5;
-        }
-        if (sprite===this.cologne) {
-            return -8;
-        }
-        if (sprite===this.dogfood) {
-            return 1;
-        }
-        if (sprite===this.firstaidkit) {
-            return 15;
-        }
-        if (sprite===this.flashlight) {
-            return 6;
-        }
-        if (sprite===this.gasmask) {
-            return 4;
-        }
-        if (sprite===this.jewelrybox) {
-            return 6;
-        }
-        if (sprite===this.makeupbag) {
-            return -2;
-        }
-        if (sprite===this.matches) {
-            return 5;
-        }
-        if (sprite===this.mouthwash) {
-            return -3;
-        }
-        if (sprite===this.mre) {
-            return 3;
-        }
-        if (sprite===this.passport) {
-            return 1;
-        }
-        if (sprite===this.portablepowergen) {
-            return 18;
-        }
-        if (sprite===this.portablestove) {
-            return 15;
-        }
-        if (sprite===this.pot) {
-            return 5;
-        }
-        if (sprite===this.powerbank) {
-            return 5;
-        }
-        if (sprite===this.proteinbar) {
-            return 3;
-        }
-        if (sprite===this.ps5) {
-            return -17;
-        }
-        if (sprite===this.rope) {
-            return 5;
-        }
-        if (sprite===this.soap) {
-            return 2;
-        }
-        if (sprite===this.swissknife) {
-            return 10;
-        }
-        if (sprite===this.teddybear) {
-            return -8;
-        }
-        if (sprite===this.tent) {
-            return 7;
-        }
-        if (sprite===this.thermos) {
-            return 1;
-        }
-        if (sprite===this.toilet) {
-            return -6;
-        }
-        if (sprite===this.toothbrush) {
-            return 1;
-        }
-        if (sprite===this.wallet) {
-            return -10;
-        }
-        return 0;
     }
 }

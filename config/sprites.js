@@ -1,0 +1,36 @@
+export const SPRITES = [
+    { key: 'hairdryer',        scale: 0.4,  x: 400,  y: 100,  file: 'assets/hairdryer.png',        score: -8 },
+    { key: 'laptop',           scale: 0.3,  x: 500,  y: 100,  file: 'assets/laptop.png',           score: 8 },
+    { key: 'survival book',    scale: 0.1,  x: 600,  y: 100,  file: 'assets/survival book.png',    score: 5 },
+    { key: 'batteries',        scale: 0.1,  x: 700,  y: 100,  file: 'assets/batteries.png',        score: 2 },
+    { key: 'beer',             scale: 0.1,  x: 800,  y: 100,  file: 'assets/beer.png',             score: -10 },
+    { key: 'cologne',          scale: 0.1,  x: 900,  y: 100,  file: 'assets/cologne.png',          score: -8 },
+    { key: 'dog food',         scale: 0.1,  x: 1000, y: 100,  file: 'assets/dog food.png',         score: 1 },
+    { key: 'first aid kit',    scale: 0.15, x: 1100, y: 100,  file: 'assets/first aid kit.png',    score: 15 },
+
+    { key: 'flashlight',       scale: 0.08, x: 400,  y: 200,  file: 'assets/flashlight.png',       score: 6 },
+    { key: 'gas mask',         scale: 0.1,  x: 500,  y: 200,  file: 'assets/gas mask.png',         score: 4 },
+    { key: 'jewelry box',      scale: 0.1,  x: 600,  y: 200,  file: 'assets/jewelry box.png',      score: 6 },
+    { key: 'makeup bag',       scale: 0.1,  x: 700,  y: 200,  file: 'assets/makeup bag.png',       score: -2 },
+    { key: 'matches',          scale: 0.05, x: 800,  y: 200,  file: 'assets/matches.png',          score: 5 },
+    { key: 'mouthwash',        scale: 0.09, x: 900,  y: 200,  file: 'assets/mouthwash.png',        score: -3 },
+    { key: 'mre',              scale: 0.09, x: 1000, y: 200,  file: 'assets/mre.png',              score: 3 },
+    { key: 'passport',         scale: 0.05, x: 1100, y: 200,  file: 'assets/passport.png',         score: 1 },
+
+    { key: 'portable power gen', scale: 0.15, x: 400,  y: 300, file: 'assets/portable power gen.png', score: 18 },
+    { key: 'portable stove',   scale: 0.1,  x: 500,  y: 300,  file: 'assets/portable stove.png',   score: 15 },
+    { key: 'pot',              scale: 0.1,  x: 600,  y: 300,  file: 'assets/pot.png',              score: 5 },
+    { key: 'power bank',       scale: 0.05, x: 700,  y: 300,  file: 'assets/power bank.png',       score: 5 },
+    { key: 'protein bar',      scale: 0.05, x: 800,  y: 300,  file: 'assets/protein bar.png',      score: 3 },
+    { key: 'ps5',              scale: 0.13, x: 900,  y: 300,  file: 'assets/ps5.png',              score: -17 },
+    { key: 'rope',             scale: 0.1,  x: 1000, y: 300,  file: 'assets/rope.png',             score: 5 },
+    { key: 'soap',             scale: 0.07, x: 1100, y: 300,  file: 'assets/soap.png',             score: 2 },
+
+    { key: 'swiss knife',      scale: 0.05, x: 400,  y: 400,  file: 'assets/swiss knife.png',      score: 10 },
+    { key: 'teddy bear',       scale: 0.1,  x: 500,  y: 400,  file: 'assets/teddy bear.png',       score: -8 },
+    { key: 'tent bag',         scale: 0.1,  x: 600,  y: 400,  file: 'assets/tent bag.png',         score: 7 },
+    { key: 'thermos',          scale: 0.05, x: 700,  y: 400,  file: 'assets/thermos.png',          score: 1 },
+    { key: 'toilet paper',     scale: 0.1,  x: 800,  y: 400,  file: 'assets/toilet paper.png',     score: -6 },
+    { key: 'toothbrush',       scale: 0.05, x: 900,  y: 400,  file: 'assets/toothbrush.png',       score: 1 },
+    { key: 'wallet',           scale: 0.05, x: 1000, y: 400,  file: 'assets/wallet.png',           score: -10 }
+];

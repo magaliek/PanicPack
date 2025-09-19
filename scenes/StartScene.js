@@ -26,11 +26,14 @@ export default class StartScene extends Phaser.Scene {
         const { width, height } = this.scale;
         this.cameras.main.setBackgroundColor('#270b0b');
 
+        //test
+        console.log(window.innerWidth, window.innerHeight, width, height, this.isPortrait());
+
         this.add.text(width / 2, height / 4, 'Disaster has hit! You must pack your bags and leave your house immediately!', {
             font: '32px Chalkboard SE',
             fill: '#9a2727',
             wordWrap: {
-                width: 1000,
+                width: width/1.5,
                 useAdvancedWrap: true
             },
             align: 'center'
@@ -38,7 +41,7 @@ export default class StartScene extends Phaser.Scene {
 
         const startText = this.add.text(width / 2, height / 2, 'Start Game', {
             font: '32px Chalkboard SE',
-            fill: '#000'
+            fill: '#c8c8c8'
         }).setOrigin(0.5).setInteractive();
 
         startText.on('pointerover', () => {
@@ -49,18 +52,6 @@ export default class StartScene extends Phaser.Scene {
         startText.on('pointerout', () => {
             this.input.setDefaultCursor('default');
             startText.setStroke('#611d1d', 0);
-        });
-
-        startText.on('pointerdown', () => {
-            this.tweens.add({
-                targets: this.music,
-                volume: 0,
-                duration: 1000,
-                onComplete: () => {
-                    this.music.stop();
-                    this.scene.start('GameScene');
-                }
-            });
         });
 
         this.mute = this.add.sprite(1150, 550, 'mute', null).setInteractive();
@@ -79,6 +70,23 @@ export default class StartScene extends Phaser.Scene {
         });
         this.mute.on('pointerover', () => {
             this.input.setDefaultCursor('pointer');
-        })
+        });
+
+        startText.on('pointerdown', () => {
+            this.tweens.add({
+                targets: this.music,
+                volume: 0,
+                duration: 1000,
+                onComplete: () => {
+                    this.music.stop();
+                    this.scene.start('GameScene');
+                }
+            });
+        });
+    }
+
+    //test
+    isPortrait() {
+        return window.innerHeight > window.innerWidth;
     }
 }
