@@ -9,13 +9,13 @@ Your final score determines your ending
 
 The box physics and collisions are handled entirely by Matter.js, so everything settles naturally.
 
-Desktop:
+**_Desktop:_**
 
 Drag items with the mouse
 
 Drop them inside the box before time hits zero
 
-Mobile:
+_**Mobile:**_
 
 Tap and drag to move items
 
@@ -27,7 +27,7 @@ Tap and drag to move items
 
 **CSS** — basic styling and layout
 
-**JSON **— dynamic settings and item definitions
+**JSON**— dynamic settings and item definitions
 
 **PhysicsEditor** — creating sprites bodies
 
